@@ -1,5 +1,7 @@
 (ns puppetlabs.trapperkeeper.testutils.bootstrap
   (:require [me.raynes.fs :as fs]
+            [clojure.string :as str]
+            [clojure.java.io :as io]
             [puppetlabs.trapperkeeper.core :as tk]
             [puppetlabs.trapperkeeper.app :as tk-app]
             [puppetlabs.kitchensink.testutils :as ks-testutils]
@@ -7,7 +9,29 @@
             [puppetlabs.trapperkeeper.config :as config]
             [puppetlabs.trapperkeeper.internal :as internal]))
 
-(def empty-config "./target/empty.ini")
+(defn target-dir
+  []
+  (let [cwd (-> "." fs/file .getAbsolutePath)]
+    (if (str/ends-with? cwd "target")
+      cwd
+      (let [maybe-target (str cwd "/target")]
+        (if (.exists (fs/file maybe-target))
+          maybe-target
+          (throw (IllegalStateException.
+                   "Cannot determine target directory for test fixtures")))))))
+
+(defn test-dir*
+  []
+  (-> (target-dir) fs/file .getAbsolutePath))
+
+(def test-dir (memoize test-dir*))
+
+(defn file
+  [path]
+  (-> path io/resource .getPath))
+
+
+(def empty-config (str (test-dir) "/empty.ini"))
 (fs/touch empty-config)
 
 (defn bootstrap-services-with-config

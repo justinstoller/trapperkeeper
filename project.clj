@@ -51,6 +51,7 @@
 
   ;; Convenience for manually testing application shutdown support - run `lein test-external-shutdown`
   :aliases {"cljfmt" ["with-profile" "+cljfmt" "cljfmt"]
+            "confined-test" ["with-profile" "+confined-tests" "test" "test/puppetlabs/trapperkeeper/config_test.clj"]
             "test-external-shutdown" ["trampoline" "run" "-m" "examples.shutdown-app.test-external-shutdown"]}
 
   ;; By declaring a classifier here and a corresponding profile below we'll get an additional jar
@@ -68,6 +69,7 @@
                    :dependencies [[puppetlabs/kitchensink :classifier "test"]]}
 
              :testutils {:source-paths ^:replace ["test"]}
+             :confined-tests {:java-opts ["-Duser.dir=./target"]}
              :uberjar {:aot [puppetlabs.trapperkeeper.main]
                        :classifiers ^:replace []}}
 
